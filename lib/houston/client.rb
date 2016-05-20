@@ -65,7 +65,7 @@ module Houston
     def bad_tokens(feedback, cert, pass)
       local_devices = []
 
-      Connection.open(feedback, cet, pass) do |connection|
+      Connection.open(feedback, cert, pass) do |connection|
         p connection
         while line = connection.read(38)
           feedback = line.unpack('N1n1H140')
