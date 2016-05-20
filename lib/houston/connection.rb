@@ -61,26 +61,5 @@ module Houston
     def closed?
       not open?
     end
-
-    def unregistered_devices
-      devices.collect{|device| device[:token]}
-    end
-
-    private
-
-    def devices
-      local_devices = []
-
-      open do |connection|
-        while line = connection.read(38)
-          feedback = line.unpack('N1n1H140')
-          timestamp = feedback[0]
-          token = feedback[2].scan(/.{0,8}/).join(' ').strip
-          local_devices << {token: token, timestamp: timestamp} if token && timestamp
-        end
-      end
-
-      local_devices
-    end
   end
 end

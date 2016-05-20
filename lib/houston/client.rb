@@ -62,6 +62,23 @@ module Houston
       end
     end
 
+    def bad_tokens(feedback, cert, pass)
+      local_devices = []
+
+      Connection.open(feedback, cet, pass) do |connection|
+        p connection
+        while line = connection.read(38)
+          feedback = line.unpack('N1n1H140')
+          timestamp = feedback[0]
+          token = feedback[2].scan(/.{0,8}/).join(' ').strip
+          p token
+          local_devices << {token: token, timestamp: timestamp} if token && timestamp
+        end
+      end
+
+      local_devices
+    end
+
     def unregistered_devices
       local_devices = []
 
