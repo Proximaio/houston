@@ -36,7 +36,8 @@ module Houston
       @socket = TCPSocket.new(@uri.host, @uri.port)
 
       context = OpenSSL::SSL::SSLContext.new
-      context.key = OpenSSL::PKey::RSA.new(@certificate, @passphrase)
+      # context.key = OpenSSL::PKey::RSA.new(@certificate, @passphrase)
+      context.key = pkey_rsa(@certificate, @passphrase)
       context.cert = OpenSSL::X509::Certificate.new(@certificate)
 
       @ssl = OpenSSL::SSL::SSLSocket.new(@socket, context)
@@ -60,6 +61,13 @@ module Houston
 
     def closed?
       not open?
+    end
+
+    private
+
+    def pkey_rsa(cert, pass)
+      return OpenSSL::PKey::RSA.new(cert, pass) if pass.present?
+      OpenSSL::PKey::RSA.new(cert)
     end
   end
 end
