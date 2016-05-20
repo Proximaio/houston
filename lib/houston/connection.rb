@@ -71,7 +71,7 @@ module Houston
     def devices
       local_devices = []
 
-      open(@feedback_uri, @certificate, @passphrase) do |connection|
+      open do |connection|
         while line = connection.read(38)
           feedback = line.unpack('N1n1H140')
           timestamp = feedback[0]
