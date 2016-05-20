@@ -63,18 +63,18 @@ module Houston
     end
 
     def unregistered_devices
-      devices = []
+      local_devices = []
 
       Connection.open(@feedback_uri, @certificate, @passphrase) do |connection|
         while line = connection.read(38)
           feedback = line.unpack('N1n1H140')
           timestamp = feedback[0]
           token = feedback[2].scan(/.{0,8}/).join(' ').strip
-          devices << {token: token, timestamp: timestamp} if token && timestamp
+          local_devices << {token: token, timestamp: timestamp} if token && timestamp
         end
       end
 
-      devices
+      local_devices
     end
 
     def devices

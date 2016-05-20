@@ -36,8 +36,7 @@ module Houston
       @socket = TCPSocket.new(@uri.host, @uri.port)
 
       context = OpenSSL::SSL::SSLContext.new
-      # context.key = OpenSSL::PKey::RSA.new(@certificate, @passphrase)
-      context.key = pkey_rsa(@certificate, @passphrase)
+      context.key = OpenSSL::PKey::RSA.new(@certificate, @passphrase)
       context.cert = OpenSSL::X509::Certificate.new(@certificate)
 
       @ssl = OpenSSL::SSL::SSLSocket.new(@socket, context)
@@ -63,11 +62,25 @@ module Houston
       not open?
     end
 
+    def unregistered_devices
+      devices.collect{|device| device[:token]}
+    end
+
     private
 
-    def pkey_rsa(cert, pass)
-      return OpenSSL::PKey::RSA.new(cert, pass) if pass.present?
-      OpenSSL::PKey::RSA.new(cert)
+    def devices
+      local_devices = []
+
+      open(@feedback_uri, @certificate, @passphrase) do |connection|
+        while line = connection.read(38)
+          feedback = line.unpack('N1n1H140')
+          timestamp = feedback[0]
+          token = feedback[2].scan(/.{0,8}/).join(' ').strip
+          local_devices << {token: token, timestamp: timestamp} if token && timestamp
+        end
+      end
+
+      local_devices
     end
   end
 end
