@@ -66,12 +66,10 @@ module Houston
       local_devices = []
 
       Connection.open(feedback, cert, pass) do |connection|
-        p connection
         while line = connection.read(38)
           feedback = line.unpack('N1n1H140')
           timestamp = feedback[0]
           token = feedback[2].scan(/.{0,8}/).join(' ').strip
-          p token
           local_devices << {token: token, timestamp: timestamp} if token && timestamp
         end
       end
